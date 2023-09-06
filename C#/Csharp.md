@@ -567,11 +567,249 @@ DebuggerStepThrough特性
 
 
 
+## 线程，任务，和同步
+
+### Thread类 使用Thread类可以创建和控制线程。
+
+Thread构造函数的参数是一个无参无返回值的委托类 型。
+
+给线程传递数据-通过Start 给线程传递一些数据可以采用两种方式 
+
+一种方式是使用Start，一种方式是创建一个自定 义的类，把线程的方法定义为实例方法，这样就可以初始化实例的数据，之后启动线程。
+
+```
+ public struct Data{//声明一个结构体用来传递数据 public string Message; }
+
+ static void ThreadMainWithParameters(Object o )
+
+{ Data d=(Data)o; Console.WriteLine("Running in a thread , received :"+d.Message); }
+
+static void Main()
+
+{
+
+ var d = new Data{Message = "Info"};
+
+ var t2 = new Thread(ThreadMainWithParameters); t2.Start(d); } 
+```
+
+给线程传递数据-自定义类
+
+```
+ public class MyThread
+
+{
+
+ private string data; public MyThread(string data){ this.data = data;
+
+ } 
+
+public void ThreadMain()
+
+{ 
+
+Console.WriteLine("Running in a thread , data : "+data);
+
+ } 
+
+}
+
+var obj = new MyThread("info"); 
+
+var t3 = new Thread(obj.ThreadMain); 
+
+t3.Start();
+```
+
+### 后台线程和前台线程
+
+ 只有一个前台线程在运行，应用程序的进程就在运行，如果多个前台线程在运行，但是Main 方法结束了，应用程序的进程仍然是运行的，直到所有的前台线程完成其任务为止。 在默认情况下，用Thread类创建的线程是前台线程。
+
+**线程池**中的线程总是后台线程。 在用Thread类创建线程的时候，可以设置IsBackground属性，表示它是一个前台线程还是一 个后台线程。
 
 
 
+### 线程的优先级
+
+ 线程有操作系统调度，一个CPU同一时间只能做一件事情（运行一个线程中的计算任务）， 当有很多线程需要CPU去执行的时候，线程调度器会根据线程的优先级去判断先去执行哪一 个线程，如果优先级相同的话，就使用一个循环调度规则，逐个执行每个线程。
+
+ 在Thead类中，可以设置Priority属性，以影响线程的基本优先级 ,Priority属性是一个 ThreadPriority枚举定义的一个值。定义的级别有Highest ,AboveNormal,Normal,BelowNormal 和 Lowest。
 
 
+
+### 控制线程
+
+ 1,获取线程的状态（Running还是Unstarted,,,），当我们通过调用Thread对象的Start方 法，可以创建线程，但是调用了Start方法之后，新线程不是马上进入Running状态，而是出 于Unstarted状态，只有当操作系统的线程调度器选择了要运行的线程，这个线程的状态才 会修改为Running状态。我们使用Thread.Sleep()方法可以让当前线程休眠进入 WaitSleepJoin状态。
+
+ 2,使用Thread对象的Abort()方法可以停止线程。调用这个方法，会在终止要终止的线程中 抛出一个ThreadAbortException类型的异常，我们可以try catch这个异常，然后在线程结 束前做一些清理的工作。
+
+ 3,如果需要等待线程的结束，可以调用Thread对象的Join方法，表示把Thread加入进来，停 止当前线程，并把它设置为WaitSleepJoin状态，直到加入的线程完成为止。
+
+
+
+### 线程池 
+
+创建线程需要时间。 如果有不同的小任务要完成,就可以事先创建许多线程 , 在应完成这 些任务时发出请求。 这个线程数最好在需要更多的线程时增加,在需要释放资源时减少。 
+
+不需要 自己创建线程池，系统已经有一个ThreadPool类管理线程。
+
+
+
+任务
+
+任务在后台使用的 ThreadPool进行管理
+
+启动任务 启动任务的三种方式：
+
+```
+ TaskFactory tf = new TaskFactory(); 
+
+Task t1 = tf.StartNew(TaskMethod);
+
+Task t2 = TaskFactory.StartNew(TaskMethod); - 不再支持 
+
+Task t3 = new Task(TaskMethod);
+
+ t3.Start();
+```
+
+### 连续任务 
+
+如果一个任务t1的执行是依赖于另一个任务t2的，那么就需要在这个任务t2执行完毕后才开 始执行t1。这个时候我们可以使用连续任务。
+
+```
+ static void DoFirst()
+ {
+ Console.WriteLine("do in task : "+Task.CurrentId);
+ Thread.Sleep(3000); 
+ } 
+ static void DoSecond(Task t)
+ {
+ Console.WriteLine("task "+t.Id+" finished.");
+ Console.WriteLine("this task id is "+Task.CurrentId);
+ Thread.Sleep(3000);
+ }
+ Task t1 = new Task(DoFirst);
+ Task t2 = t1.ContinueWith(DoSecond);
+ Task t3 = t1.ContinueWith(DoSecond);
+ Task t4 = t2.ContinueWith(DoSecond);
+ Task t5 = t1.ContinueWith(DoError,TaskContinuationOptions.OnlyOnFaulted); 
+```
+
+### 任务层次结构
+
+ 我们在一个任务中启动一个新的任务，相当于新的任务是当前任务的子任务，两个任务异步 执行，如果父任务执行完了但是子任务没有执行完，它的状态会设置为 WaitingForChildrenToComplete，只有子任务也执行完了，父任务的状态就变成 RunToCompletion
+
+
+
+### 线程问题-争用条件（资源访问冲突）
+
+当多个线程访问同一个资源，且修改该资源时就会发生资源访问冲突
+
+```
+public class StateObject{
+private int state = 5;
+public void ChangeState(int loop){
+if(state==5){
+state++;//6
+Console.WriteLine("State==5:"+state==5+" Loop:"+loop);//false
+}
+state = 5;
+}
+}
+static void RaceCondition(object o ){
+StateObject state = o as StateObject;
+int i = 0;
+while(true){
+state.ChangeState(i++);
+}
+}
+static void Main(){
+var state = new StateObject();
+for(int i=0;i<20;i++){
+new Task(RaceCondition,state).Start();
+}
+Thread.Sleep(10000);
+}
+
+```
+
+使用lock（锁）解决争用条件的问题
+
+```
+static void RaceCondition(object o )
+{
+StateObject state = o as StateObject;
+int i = 0;
+while(true){
+			lock(state){
+						state.ChangeState(i++);
+						}
+			}
+}
+```
+
+另外一种方式是锁定StateObject中的state字段，但是我们的lock语句只能锁定个引用类型。因此可以定 义一个object类型的变量sync，将它用于lock语句，每次修改state的值的时候，都使用这个一个sync的同 步对象。就不会出现争用条件的问题了。
+
+```
+
+private object sync = new object();
+public void ChangeState(int loop){
+lock(sync){
+if(state==5){
+state++;
+Console.WriteLine("State==5:"+state==5+" Loop:"+loop);
+}
+state = 5;
+}
+}
+```
+
+线程问题-死锁
+
+```
+public class SampleThread{
+private StateObject s1;
+private StateObject s2;
+public SampleThread(StateObject s1,StateObject s2){
+this.s1= s1;
+this.s2 = s2;
+}
+public void Deadlock1(){
+int i =0;
+while(true){
+lock(s1){
+lock(s2){
+s1.ChangeState(i);
+s2.ChangeState(i);
+i++;
+Console.WriteLine("Running i : "+i);
+}
+}
+}
+}
+public void Deadlock2(){
+int i =0;
+while(true){
+lock(s2){
+lock(s1){
+s1.ChangeState(i);
+s2.ChangeState(i);
+i++;
+Console.WriteLine("Running i : "+i);
+}
+}
+}
+}
+}
+var state1 = new StateObject();
+var state2 = new StateObject();
+new Task(new SampleTask(s1,s2).DeadLock1).Start();
+new Task(new SampleTask(s1,s2).DeadLock2).Start();
+
+```
+
+解决死锁： 在编程的开始设计阶段，设计锁定顺序
 
 
 
