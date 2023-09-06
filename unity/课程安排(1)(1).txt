@@ -1,0 +1,38 @@
+第一季 C#编程初级教程（siki学院）
+
+Unity零基础入门 - 见缝插针（Unity2017）	在线观看：http://www.sikiedu.com/course/78
+Unity初级案例 - 坦克大战(Unity2017.1)  	在线观看：http://www.sikiedu.com/course/90
+
+ c# 编程中级教程  https://www.sikiedu.com/course/931（如果听不懂得话就把第一季初级教程看完）
+https://www.sikiedu.com/course/935 （坦克大战）
+
+Unity API常用方法和类详细讲解（基于Unity5.6）	在线观看：http://www.sikiedu.com/course/59
+Unity初级案例 - 愤怒的小鸟	在线观看：http://www.sikiedu.com/course/134
+Unity中级案例 - 捕鱼达人2D（Unity5.6.4）	在线观看：http://www.sikiedu.com/course/88
+
+如何制作塔防游戏（基于Unity5.5）	链接：https://pan.baidu.com/s/1bd8mM-8MxtPUAuVUS2g5BQ 密码：pb6i
+
+Unity中的动画系统和Timeline（Unity2017）
+
+第三季 C#编程高级教程	链接：https://pan.baidu.com/s/1slBP7mH 密码：eob1
+第四季 数据结构教程	链接：https://pan.baidu.com/s/1i6wT30L 密码:ihye
+
+通过实例学习：游戏的存档与读档
+（Unity 2017.2）	在线观看：http://www.sikiedu.com/course/129
+
+UI框架 b站上搜索（siki学院的）
+背包系统 b站上搜索（siki学院的）
+
+（b站教程  这个只有部分免费  付费的找买了的人 低价买 一定要看！！）
+https://www.bilibili.com/video/BV1rf4y1k7vE/?spm_id_from=333.337.search-card.all.click&vd_source=9b31a3a33cb18c84a7cb500ebaedab8f
+
+
+游戏中的设计模式 基于5.6（siki学院搜索）
+
+
+
+
+插件学习
+DOTWeen插件（siki学院的  b站上搜索）
+NGUI
+行为树插件
